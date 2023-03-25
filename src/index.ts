@@ -1,57 +1,42 @@
 import express, {Request, Response} from 'express';
-import {v4 as uuid} from 'uuid';
 import bodyParser from 'body-parser';
+import cors from 'cors';
+import {todoListsRouter} from './todoListsRouter';
+import {tasksRouter} from './tasksRouter';
 
 const app = express();
 
 const port = process.env.PORT || 5000;
 
-const todoLists = [{id: '1', title: 'first todo'}, {id: '2', title: 'second todo'}];
+export type TaskType = {
+    id: string,
+    title: string,
+    isDone: boolean,
+    createDate: Date | null,
+    updateDate: Date | null,
+}
+
+export type TodoListType = {
+    id: string,
+    title: string,
+    tasks: Array<TaskType>,
+};
+
+const corsOptions = {
+    origin: 'localhost',
+    optionsSuccessStatus: 200
+}
 
 const parserMiddleware = bodyParser();
 app.use(parserMiddleware)
+    .use(cors(corsOptions))
+    .use('/todolists', todoListsRouter)
+    .use('/todolists/:todoListId/tasks', tasksRouter)
 
-app.get('/todolists', (req: Request, res: Response) => {
-    if (req.query.title) {
-        const title = req.query.title.toString()
-        res.send(todoLists.filter(todo => todo.title.indexOf(title) > -1))
-    } else {
-        res.send(todoLists)
-    }
-})
-app.get('/todolists/:todoListId', (req: Request, res: Response) => {
-    let todoList = todoLists.find(todo => todo.id === req.params.todoListId)
-    if (todoList) {
-        res.send(todoList)
-    } else {
-        res.send(404)
-    }
-})
-app.delete('/todolists/:todoListId', (req: Request, res: Response) => {
-    for (let i = 0; i < todoLists.length; i++) {
-        if (todoLists[i].id === req.params.todoListId) {
-            todoLists.splice(i, 1)
-            res.send(204)
-            return
-        }
-    }
-
+app.use((req: Request, res: Response) => {
     res.send(404)
 })
-app.post('/todolists', (req: Request, res: Response) => {
-    const newTodo = {id: uuid(), title: req.body.title};
-    todoLists.push(newTodo)
-    res.status(201).send(newTodo)
-})
-app.put('/todolists/:todoListId', (req: Request, res: Response) => {
-    let todoList = todoLists.find(todo => todo.id === req.params.todoListId)
-    if (todoList) {
-        todoList.title = req.body.title;
-        res.send(todoList)
-    } else {
-        res.send(404)
-    }
-})
+
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    console.log(`TodoLists app listening on port ${port}`)
 })
