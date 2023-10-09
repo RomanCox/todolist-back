@@ -1,9 +1,9 @@
 import {v4 as uuid} from 'uuid';
-import {TaskType, TodoListType} from './';
+import {TaskType, TodoListType} from './models';
 
 const fs = require('fs');
 
-export const getTodos = (): Promise<Array<TodoListType>> => {
+export const getTodos = async (): Promise<Array<TodoListType>> => {
     return new Promise((resolve, reject) => {
         fs.readFile("todoLists.json", function (err: (NodeJS.ErrnoException | null), buf: Buffer) {
             if (err) {
@@ -52,8 +52,9 @@ export const deleteTodo = async (todoListId: string): Promise<boolean> => {
 
 export const addTodo = async (title: string): Promise<TodoListType> => {
     const todos = await getTodos();
-    //const newTodo = {id: uuid(), title, createDate: new Date().toString(), updateDate: ''};
-    const newTodo = {id: uuid(), title, tasks: []};
+    const tasks: TaskType[] = [];
+    const newTodo = {id: uuid(), title, tasks, createDate: new Date().toString(), updateDate: new Date().toString()};
+    //const newTodo = {id: uuid(), title, tasks};
 
     return new Promise((resolve, reject) => {
         todos.push(newTodo);
@@ -140,7 +141,7 @@ export const deleteTask = async (todoListId: string, taskId: string): Promise<bo
 export const addTask = async (todoListId: string, title: string): Promise<TaskType> => {
     const todoLists = await getTodos();
     const todo = todoLists.find(todo => todo.id === todoListId);
-    const newTask = {id: uuid(), title: title, isDone: false, createDate: new Date(), updateDate: null};
+    const newTask = {id: uuid(), title: title, isDone: false, createDate: new Date(), updateDate: new Date()};
     return new Promise((resolve, reject) => {
         if (todo) {
             todo.tasks.push(newTask)

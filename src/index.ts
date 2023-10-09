@@ -8,20 +8,6 @@ const app = express();
 
 const port = process.env.PORT || 5000;
 
-export type TaskType = {
-    id: string,
-    title: string,
-    isDone: boolean,
-    createDate: Date | null,
-    updateDate: Date | null,
-}
-
-export type TodoListType = {
-    id: string,
-    title: string,
-    tasks: Array<TaskType>,
-};
-
 const corsOptions = {
     origin: 'localhost',
     optionsSuccessStatus: 200
@@ -36,6 +22,10 @@ app.use(parserMiddleware)
 app.use((req: Request, res: Response) => {
     res.send(404)
 })
+
+app.get('/', (req, res) => {
+    res.send('hello! this is todo`s back-end!');
+});
 
 app.listen(port, () => {
     console.log(`TodoLists app listening on port ${port}`)
